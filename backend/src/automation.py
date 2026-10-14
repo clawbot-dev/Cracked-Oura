@@ -252,7 +252,8 @@ class OuraAutomator:
     async def _check_otp_screen(self):
         """Checks if OTP screen is active and handles the 'Send Code' intermediate step if present."""
         # Check for "Send code" intermediate page
-        intermediate_btn = self.page.locator("button[name='selectedId']")
+        # Oura may also offer a passkey option sharing name='selectedId'; we can only handle email codes
+        intermediate_btn = self.page.locator("button[name='selectedId']:not(#passkey-button)").first
         otp_input_name = self.page.locator("input[name='otp']")
         otp_input_id = self.page.locator("#otp-code")
 
