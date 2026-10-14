@@ -139,6 +139,22 @@ class Workout(Base):
     label: Mapped[Optional[str]] = mapped_column(String, nullable=True)
     source: Mapped[Optional[str]] = mapped_column(String, nullable=True)
 
+class DetectedActivity(Base):
+    """Auto-detected activity segments (activitypredictionsegment.csv), including ones never confirmed as workouts."""
+    __tablename__ = "detected_activity"
+
+    id: Mapped[str] = mapped_column(String, primary_key=True)
+    day: Mapped[date] = mapped_column(Date, index=True)
+    start_time: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    end_time: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    duration_minutes: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    activity: Mapped[Optional[str]] = mapped_column(String, nullable=True)  # Selected or most likely prediction
+    probability: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    state: Mapped[Optional[str]] = mapped_column(String, nullable=True)  # active / dismissed / rewarded
+    average_hr: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    calories: Mapped[Optional[float]] = mapped_column(Float, nullable=True)
+    predicted_activities: Mapped[Optional[list]] = mapped_column(JSON, nullable=True)
+
 class Meditation(Base):
     __tablename__ = "meditation"
 

@@ -17,13 +17,13 @@ from sqlalchemy import select, func
 from ..config import config_manager
 from ..database import get_db, SessionLocal
 from ..models import (
-    Sleep, Activity, Readiness, Resilience, SleepSession, Workout, Meditation, 
+    Sleep, Activity, Readiness, Resilience, SleepSession, Workout, DetectedActivity, Meditation, 
     RingBattery, HeartRate, Temperature, RingConfiguration, Tag, CardiovascularAge
 )
 from .schemas import (
     DayDataResponse,
     SleepResponse, ActivityResponse, ReadinessResponse,
-    SleepSessionResponse, WorkoutResponse, HeartRateResponse, 
+    SleepSessionResponse, WorkoutResponse, DetectedActivityResponse, HeartRateResponse, 
     ResilienceResponse, TemperatureResponse, MeditationResponse
 )
 from ..ingestion import OuraParser
@@ -310,6 +310,7 @@ async def get_day_data(
         # Fetch detailed components
         sleep_sessions = db.query(SleepSession).filter(SleepSession.day == target_date).all()
         workouts = db.query(Workout).filter(Workout.day == target_date).all()
+        detected_activities = db.query(DetectedActivity).filter(DetectedActivity.day == target_date).order_by(DetectedActivity.start_time).all()
         sessions = db.query(Meditation).filter(Meditation.day == target_date).all()
         
         # Fetch Ring Battery
@@ -330,6 +331,7 @@ async def get_day_data(
             "ring_battery": battery,
             "sleep_sessions": sleep_sessions,
             "workouts": workouts,
+            "detected_activities": detected_activities,
             "meditation": sessions
         }
 
@@ -388,6 +390,7 @@ def query_data(
             "cardiovascular_age": CardiovascularAge,
             "sleep_session": SleepSession,
             "workout": Workout,
+            "detected_activity": DetectedActivity,
             "meditation": Meditation,
             "ring_battery": RingBattery,
             "heart_rate": HeartRate,
@@ -476,6 +479,7 @@ def get_schema():
         "cardiovascular_age": CardiovascularAge,
         "sleep_session": SleepSession,
         "workout": Workout,
+        "detected_activity": DetectedActivity,
         "meditation": Meditation,
         "ring_battery": RingBattery,
         "heart_rate": HeartRate,

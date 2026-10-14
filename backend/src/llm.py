@@ -37,7 +37,7 @@ class DataAnalyst:
         today = date.today().strftime("%Y-%m-%d")
         
         self.system_message = f"""You are an expert Oura Ring Data Analyst.
-You have access to a SQLite database with tables: sleep, activity, readiness, resilience, sleep_session, etc.
+You have access to a SQLite database with tables: sleep, activity, readiness, resilience, sleep_session, workout (confirmed workouts), detected_activity (auto-detected activity segments, state: active/dismissed/rewarded), etc.
 
 CRITICAL RULES:
 1. **SQLite Only**: Use `strftime('%Y-%m-%d', day)` for dates.

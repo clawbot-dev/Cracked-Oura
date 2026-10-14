@@ -204,6 +204,22 @@ class TagResponse(BaseModel):
     class Config:
         from_attributes = True
 
+class DetectedActivityResponse(BaseModel):
+    id: str
+    day: date
+    start_time: Optional[datetime] = None
+    end_time: Optional[datetime] = None
+    duration_minutes: Optional[float] = None
+    activity: Optional[str] = None
+    probability: Optional[float] = None
+    state: Optional[str] = None
+    average_hr: Optional[float] = None
+    calories: Optional[float] = None
+    predicted_activities: Optional[List[Dict[str, Any]]] = None
+
+    class Config:
+        from_attributes = True
+
 # --- Comprehensive Day Data ---
 
 class DayDataResponse(BaseModel):
@@ -217,6 +233,7 @@ class DayDataResponse(BaseModel):
     # Collections
     sleep_sessions: List[SleepSessionResponse] = []
     workouts: List[WorkoutResponse] = []
+    detected_activities: List[DetectedActivityResponse] = []
     meditation: List[MeditationResponse] = []
     ring_battery: List[RingBatteryResponse] = []
     

@@ -122,6 +122,7 @@ class OuraParser(IngestionBase):
             "sleepmodel.csv": self.sleep_processor.process_sleep_session,
             "workout.csv": self.activity_processor.process_workout,
             "session.csv": self.activity_processor.process_meditation,
+            "activitypredictionsegment.csv": self.activity_processor.process_detected_activity,
             "heartrate.csv": self.common_processor.process_heart_rate,
             "temperature.csv": self.common_processor.process_temperature,
         }

@@ -2,7 +2,7 @@ import pandas as pd
 import uuid
 import logging
 from datetime import datetime
-from backend.src.models import Activity, Workout, Meditation
+from backend.src.models import Activity, Workout, Meditation, DetectedActivity
 from backend.src.ingestion.base import IngestionBase
 
 logger = logging.getLogger("ActivityProcessor")
@@ -119,6 +119,45 @@ class ActivityProcessor(IngestionBase):
                 continue
         
         self._upsert(Meditation, records, ['id'])
+
+    def process_detected_activity(self, file_path: str):
+        """Auto-detected activity segments, including ones never confirmed as workouts."""
+        df = self._read_csv_robust(file_path)
+        if df is None or df.empty:
+            return
+
+        records = []
+        for _, row in df.iterrows():
+            try:
+                start = self._parse_datetime(row.get('start_time'))
+                end = self._parse_datetime(row.get('end_time'))
+                predictions = self._parse_json_col(row.get('predicted_activities')) or []
+                # Prefer the prediction the user selected, else the most likely one
+                chosen = self._parse_json_col(row.get('selected_prediction'))
+                if not isinstance(chosen, dict) and predictions:
+                    chosen = max(predictions, key=lambda p: p.get('probability') or 0)
+                chosen = chosen if isinstance(chosen, dict) else {}
+
+                avg_hr = self._parse_float(row.get('average_hr'))
+
+                records.append(DetectedActivity(
+                    id=str(row.get('id') or uuid.uuid4()),
+                    day=self._parse_date(row.get('day')),
+                    start_time=start,
+                    end_time=end,
+                    duration_minutes=(end - start).total_seconds() / 60 if start and end else None,
+                    activity=chosen.get('label') or chosen.get('activity'),
+                    probability=chosen.get('probability'),
+                    state=row.get('segment_state') or None,
+                    average_hr=avg_hr if avg_hr else None,  # 0.0 means no HR reading
+                    calories=self._parse_float(row.get('calories')),
+                    predicted_activities=predictions or None
+                ))
+            except Exception as e:
+                logger.error(f"Error parsing activity prediction row: {e}")
+                continue
+
+        self._batch_upsert(DetectedActivity, records, ['id'])
 
     def process_stress(self, df: pd.DataFrame):
         """Merges daytime stress data into the Activity table."""
