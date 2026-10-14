@@ -34,6 +34,7 @@ const ICON_MAP: Record<string, any> = {
     cardiovascular_age: Heart,
     sleep_session: Moon,
     workout: Activity,
+    detected_activity: Activity,
     meditation: Brain,
     ring_battery: Battery,
     stress: Flame,
